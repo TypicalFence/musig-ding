@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"fence"
+	],
+	"copyright": "Copyright © 2020, fence",
+	"description": "A minimal D application.",
+	"license": "GPL3",
+	"name": "jukeboxd"
+}

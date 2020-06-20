@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/jukeboxd
+jukeboxd.so
+jukeboxd.dylib
+jukeboxd.dll
+jukeboxd.a
+jukeboxd.lib
+jukeboxd-test-*
+*.exe
+*.o
+*.obj
+*.lst
