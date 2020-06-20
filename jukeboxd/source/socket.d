@@ -2,6 +2,9 @@ module socket;
 
 import std.exception;
 import socket = std.socket;
+import vibe.data.bson : Bson, deserializeBson;
+import handler : RequestHandler;
+import protocol;
 
 class AlreadyRunningException : Exception {
     
@@ -11,12 +14,13 @@ class AlreadyRunningException : Exception {
 
 }
 
-class Socket {
+final class Socket {
     private socket.Socket listener;
     private socket.SocketSet set;
+    private RequestHandler requestHandler;
     private bool running;
 
-    this(socket.UnixAddress addr) {
+    this(socket.UnixAddress addr, RequestHandler handler) {
         this.running = false;
 
         this.listener = new socket.Socket(
@@ -27,10 +31,16 @@ class Socket {
         this.listener.listen(10);
 
         this.set = new socket.SocketSet();
+
+        this.requestHandler = handler;
     }
     
     char[] handle_request(char[]  req) {
-        return req;
+        Request request;
+        Bson bsonData = Bson(Bson.Type.object, req);
+        deserializeBson(request, bsonData);
+        MethodResult result = this.requestHandler.handle_request(request);
+        return Bson(result).data;
     }
 
     void run() {

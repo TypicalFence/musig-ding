@@ -1,9 +1,31 @@
 import std.stdio;
 import std.socket : UnixAddress;
+import vibe.data.bson : Bson;
 import socket;
+import protocol;
+import handler;
+
+class PingMethod : Method {
+    string getName() {
+        return "ping";
+    };
+
+    MethodResult run(Request req) {
+        return MethodResult(200, Bson("Pong"));
+    }
+}
+
+class MyFeatureProvider : MethodProvider {
+    Method[] getMethods() {
+        return [new PingMethod()];
+    }
+}
 
 void main() {
     UnixAddress addr = new UnixAddress("/tmp/jukeboxd");
-    Socket socket = new Socket(addr);
+    RequestHandler handler = RequestHandler(); 
+    handler.registerProvider(new MyFeatureProvider());
+    Socket socket = new Socket(addr, handler);
     socket.run();
 }
+
