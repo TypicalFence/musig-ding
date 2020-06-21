@@ -2,7 +2,7 @@ module socket;
 
 import std.exception;
 import socket = std.socket;
-import vibe.data.bson : Bson, deserializeBson;
+import vibe.data.bson : Bson, deserializeBson, serializeToBson, fromBsonData;
 import handler : RequestHandler;
 import protocol;
 
@@ -35,12 +35,13 @@ final class Socket {
         this.requestHandler = handler;
     }
     
-    char[] handle_request(char[]  req) {
+    immutable(ubyte)[] handle_request(immutable(ubyte)[]  req) {
         Request request;
-        Bson bsonData = Bson(Bson.Type.object, req);
-        deserializeBson(request, bsonData);
+        Bson bson = Bson(Bson.Type.binData, req);
+        deserializeBson!Request(request, bson);
         MethodResult result = this.requestHandler.handle_request(request);
-        return Bson(result).data;
+        Bson resultBson = serializeToBson(result);
+        return resultBson.data;
     }
 
     void run() {
@@ -51,7 +52,7 @@ final class Socket {
         this.running = true;
        
         socket.Socket[] connectedClients;
-        char[1024] buffer;
+        ubyte[1024] buffer;
 
         while(this.running) {
             this.set.reset();
@@ -66,7 +67,7 @@ final class Socket {
                     if(this.set.isSet(client)) {
                         // read from it and echo it back
                         auto got = client.receive(buffer);
-                        auto response = handle_request((buffer[0 .. got]));
+                        auto response = handle_request(cast(immutable(ubyte)[]) (buffer[0 .. got]));
                         client.send(response);
                     }
                 }
