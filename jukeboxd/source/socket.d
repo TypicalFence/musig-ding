@@ -1,5 +1,8 @@
 module socket;
 
+import core.exception;
+import std.stdio;
+import std.algorithm;
 import std.exception;
 import socket = std.socket;
 import vibe.data.bson : Bson, deserializeBson, serializeToBson, fromBsonData;
@@ -36,10 +39,17 @@ final class Socket {
     }
     
     immutable(ubyte)[] handle_request(immutable(ubyte)[]  req) {
-        Request request;
-        Bson bson = Bson(Bson.Type.binData, req);
-        deserializeBson!Request(request, bson);
-        MethodResult result = this.requestHandler.handle_request(request);
+        MethodResult result = MethodResult(500, Bson("we just don't know"));
+
+        try {
+            Request request;
+            Bson bson = Bson(Bson.Type.object, req);
+            deserializeBson!Request(request, bson);
+            result = this.requestHandler.handle_request(request);
+        } catch(RangeError) {
+            result = MethodResult(400, Bson("invalid Resquest"));
+        }
+
         Bson resultBson = serializeToBson(result);
         return resultBson.data;
     }
@@ -63,13 +73,24 @@ final class Socket {
             }
 
             if(socket.Socket.select(this.set, null, null)) {
-                foreach(client; connectedClients) {
+                for (size_t i = 0; i < connectedClients.length; i++) {
+                    std.socket.Socket client = connectedClients[i];
+
+                    writeln("client");
                     if(this.set.isSet(client)) {
                         // read from it and echo it back
                         auto got = client.receive(buffer);
-                        auto response = handle_request(cast(immutable(ubyte)[]) (buffer[0 .. got]));
+                        auto stuff = cast(immutable(ubyte)[]) (buffer[0 .. got]);
+                        auto response = handle_request(stuff);
                         client.send(response);
+                        writeln("yay");
                     }
+
+                   // release socket resources now
+                    client.close();
+
+                    connectedClients = connectedClients.remove(i);
+                    i--;
                 }
 
                 if(this.set.isSet(listener)) {
