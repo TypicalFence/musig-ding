@@ -39,19 +39,23 @@ final class Socket {
     }
     
     immutable(ubyte)[] handle_request(immutable(ubyte)[]  req) {
-        MethodResult result = MethodResult(500, Bson("we just don't know"));
+        Response response = Response("", Type.RESPONSE);
+        MethodResult result;
 
         try {
             Request request;
             Bson bson = Bson(Bson.Type.object, req);
             deserializeBson!Request(request, bson);
+            response.id = request.id;
             result = this.requestHandler.handle_request(request);
         } catch(RangeError) {
             result = MethodResult(400, Bson("invalid Resquest"));
         }
-
-        Bson resultBson = serializeToBson(result);
-        return resultBson.data;
+        
+        response.code = result.code; 
+        response.result = result.data; 
+        Bson responseBson = serializeToBson(response);
+        return responseBson.data;
     }
 
     void run() {
@@ -75,20 +79,17 @@ final class Socket {
             if(socket.Socket.select(this.set, null, null)) {
                 for (size_t i = 0; i < connectedClients.length; i++) {
                     std.socket.Socket client = connectedClients[i];
-
-                    writeln("client");
+                    
                     if(this.set.isSet(client)) {
                         // read from it and echo it back
                         auto got = client.receive(buffer);
                         auto stuff = cast(immutable(ubyte)[]) (buffer[0 .. got]);
                         auto response = handle_request(stuff);
                         client.send(response);
-                        writeln("yay");
                     }
 
                    // release socket resources now
                     client.close();
-
                     connectedClients = connectedClients.remove(i);
                     i--;
                 }
