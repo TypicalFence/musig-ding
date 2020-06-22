@@ -6,15 +6,15 @@ import modules;
 
 // Bindings to mpv/client.h
 struct  mpv_handle {}
+struct  mpv_event {}
 
 extern (C) mpv_handle *mpv_create();
 extern (C) int mpv_initialize(mpv_handle *ctx);
 extern (C) int mpv_set_option_string(mpv_handle *ctx, const char *name, const char *data);
-//extern (C) int mpv_command(mpv_handle *ctx, const char **args);
 extern (C) int mpv_command(mpv_handle *ctx, const (char)*[]  args);
+extern (C) mpv_event *mpv_wait_event(mpv_handle *ctx, double timeout);
 
 // Actual Code
-
 mpv_handle *getMpvHandle() {
     mpv_handle *handle = mpv_create();
     mpv_set_option_string(handle, "no-video", "true");
@@ -40,7 +40,11 @@ class MpvModule : Module, MethodProvider {
     }
 
     void playUrl(const char *url) {
-        const (char)*[] cmd = ["loadfile", url, null];
+        const (char)*[3] cmd;
+        
+        cmd[0] = toStringz("loadfile");
+        cmd[1] = url;
+        cmd[2] = null;
         mpv_command(this.mpv, cmd);
     }
    

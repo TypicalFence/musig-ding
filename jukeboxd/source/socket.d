@@ -38,24 +38,29 @@ final class Socket {
         this.requestHandler = handler;
     }
     
-    immutable(ubyte)[] handle_request(immutable(ubyte)[]  req) {
-        Response response = Response("", Type.RESPONSE);
-        MethodResult result;
-
-        try {
-            Request request;
-            Bson bson = Bson(Bson.Type.object, req);
-            deserializeBson!Request(request, bson);
-            response.id = request.id;
-            result = this.requestHandler.handle_request(request);
-        } catch(RangeError) {
-            result = MethodResult(400, Bson("invalid Resquest"));
-        }
-        
+    private immutable(ubyte)[] resultToResponse(string id, MethodResult result) {
+        Response response = Response(id, Type.RESPONSE);
         response.code = result.code; 
         response.result = result.data; 
         Bson responseBson = serializeToBson(response);
         return responseBson.data;
+
+    }
+
+    immutable(ubyte)[] handle_request(immutable(ubyte)[]  req) {
+        MethodResult result;
+        Request request;
+
+        try {
+            Bson bson = Bson(Bson.Type.object, req);
+            deserializeBson!Request(request, bson);
+        } catch(RangeError) {
+            result = MethodResult(400, Bson("invalid Request"));
+            return this.resultToResponse("", result);
+        }
+        
+        result = this.requestHandler.handle_request(request);
+        return this.resultToResponse(request.id, result);
     }
 
     void run() {
