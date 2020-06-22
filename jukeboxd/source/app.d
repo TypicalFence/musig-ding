@@ -4,6 +4,7 @@ import vibe.data.bson : Bson;
 import socket;
 import protocol;
 import handler;
+import mpv;
 
 class PingMethod : Method {
     string getName() {
@@ -25,6 +26,7 @@ void main() {
     UnixAddress addr = new UnixAddress("/tmp/jukeboxd");
     RequestHandler handler = RequestHandler(); 
     handler.registerProvider(new MyFeatureProvider());
+    handler.registerProvider(new MpvModule());
     Socket socket = new Socket(addr, handler);
     socket.run();
 }

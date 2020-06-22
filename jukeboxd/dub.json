@@ -8,5 +8,6 @@
 	},
 	"description": "A minimal D application.",
 	"license": "GPL3",
-	"name": "jukeboxd"
+	"name": "jukeboxd",
+    "libs": ["mpv"]
 }
