@@ -11,7 +11,7 @@ struct  mpv_event {}
 extern (C) mpv_handle *mpv_create();
 extern (C) int mpv_initialize(mpv_handle *ctx);
 extern (C) int mpv_set_option_string(mpv_handle *ctx, const char *name, const char *data);
-extern (C) int mpv_command(mpv_handle *ctx, const (char)*[]  args);
+extern (C) int mpv_command(mpv_handle *ctx, const(char)**  args);
 extern (C) mpv_event *mpv_wait_event(mpv_handle *ctx, double timeout);
 
 // Actual Code
@@ -39,8 +39,8 @@ class MpvModule : Module, MethodProvider {
 
     }
 
-    void playUrl(const char *url) {
-        const (char)*[3] cmd;
+    void playUrl(const(char) *url) {
+        const(char)** cmd;
         
         cmd[0] = toStringz("loadfile");
         cmd[1] = url;
