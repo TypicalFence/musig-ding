@@ -23,15 +23,11 @@ class MyFeatureProvider : MethodProvider {
 }
 
 void main() {
-    /*
     UnixAddress addr = new UnixAddress("/tmp/jukeboxd");
     RequestHandler handler = RequestHandler(); 
     handler.registerProvider(new MyFeatureProvider());
     handler.registerProvider(new MpvModule());
     Socket socket = new Socket(addr, handler);
     socket.run();
-    */
-    auto mpv = new MpvModule();
-    mpv.playUrl("https://lainon.life/radio/cyberia.ogg.m3u");
 }
 
