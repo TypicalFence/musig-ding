@@ -4,6 +4,9 @@ import vibe.data.bson : Bson;
 import protocol;
 import modules;
 
+//necessary for dynamic memory allocation
+import core.stdc.stdlib;
+
 // Bindings to mpv/client.h
 struct  mpv_handle {}
 struct  mpv_event {}
@@ -23,7 +26,7 @@ mpv_handle *getMpvHandle() {
 
 
 class MpvModule : Module, MethodProvider {
-    
+
     mpv_handle *mpv;
 
     this() {
@@ -40,23 +43,28 @@ class MpvModule : Module, MethodProvider {
     }
 
     void playUrl(const(char) *url) {
-        const(char)** cmd;
-        
+        //dynamically allocate 3 bytes...
+        const(char)** cmd = cast(const(char)**) malloc(3);
+
+        //do the magic
         cmd[0] = toStringz("loadfile");
         cmd[1] = url;
         cmd[2] = null;
         mpv_command(this.mpv, cmd);
+
+        //...and delete/free them again
+        free(cmd);
     }
-   
+
     Method[] getMethods() {
         return [new MpvPlayMethod(this)];
-    } 
+    }
 }
 
 
 class MpvPlayMethod : Method {
     private MpvModule mpv;
-    
+
     this(MpvModule mpv) {
         this.mpv = mpv;
     }
@@ -67,12 +75,11 @@ class MpvPlayMethod : Method {
 
     MethodResult run(Request req) {
         string url = req.params.get!string();
-        
+
         writeln(url);
 
         this.mpv.playUrl(toStringz(url));
-        
+
         return MethodResult(200, Bson("yay"));
     }
 }
-
