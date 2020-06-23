@@ -14,6 +14,7 @@ struct  mpv_event {}
 extern (C) mpv_handle *mpv_create();
 extern (C) int mpv_initialize(mpv_handle *ctx);
 extern (C) int mpv_set_option_string(mpv_handle *ctx, const char *name, const char *data);
+// command list https://mpv.io/manual/stable/#list-of-input-commands
 extern (C) int mpv_command(mpv_handle *ctx, const(char)**  args);
 extern (C) mpv_event *mpv_wait_event(mpv_handle *ctx, double timeout);
 
@@ -39,7 +40,11 @@ class MpvModule : Module, MethodProvider {
     }
 
     void stopPlayback() {
-
+        const(char)** cmd = cast(const(char)**) malloc(3);
+        cmd[0] = toStringz("stop");
+        cmd[2] = null;
+        mpv_command(this.mpv, cmd);
+        free(cmd);
     }
 
     void playUrl(const(char) *url) {
@@ -57,7 +62,10 @@ class MpvModule : Module, MethodProvider {
     }
 
     Method[] getMethods() {
-        return [new MpvPlayMethod(this)];
+        return [
+            new MpvPlayMethod(this), 
+            new MpvStopMethod(this),
+        ];
     }
 }
 
@@ -79,6 +87,29 @@ class MpvPlayMethod : Method {
         writeln(url);
 
         this.mpv.playUrl(toStringz(url));
+
+        return MethodResult(200, Bson("yay"));
+    }
+}
+
+
+class MpvStopMethod : Method {
+    private MpvModule mpv;
+
+    this(MpvModule mpv) {
+        this.mpv = mpv;
+    }
+
+    string getName() {
+        return "mpv_stop";
+    };
+
+    MethodResult run(Request req) {
+        string url = req.params.get!string();
+
+        writeln(url);
+
+        this.mpv.stopPlayback();
 
         return MethodResult(200, Bson("yay"));
     }
