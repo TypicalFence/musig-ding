@@ -38,11 +38,23 @@ router.get("/stop", async (ctx) => {
     const promiseSocket = new PromiseSocket(socket)
     await promiseSocket.connect("/tmp/jukeboxd")
     await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_stop"}))
-    await promiseSocket.readAll
     const content = await promiseSocket.readAll();
     console.log(BSON.deserialize(content));
     await promiseSocket.destroy();
     ctx.body = { "yay": "yay" };
+});
+
+router.get("/info", async (ctx) => {
+    const { request } = ctx;
+    const socket = new net.Socket()
+    const promiseSocket = new PromiseSocket(socket)
+    await promiseSocket.connect("/tmp/jukeboxd")
+    await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_info"}))
+    const content = await promiseSocket.readAll();
+    const content_json = BSON.deserialize(content);
+    console.log(content_json);
+    await promiseSocket.destroy();
+    ctx.body = content_json.result;
 });
 
 router.get("/json", (ctx) => {

@@ -5,7 +5,8 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon --experimental-modules app.js "
+    "dev": "nodemon --experimental-modules app.js",
+    "start": "nodemon --experimental-modules app.js"
   },
   "author": "",
   "license": "AGPL-3.0",

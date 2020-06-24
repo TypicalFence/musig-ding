@@ -1,7 +1,7 @@
 import std.stdio;
 import std.string;
 import std.conv : to;
-import vibe.data.bson : Bson;
+import vibe.data.bson : Bson, serializeToBson;
 import protocol;
 import modules;
 
@@ -9,16 +9,19 @@ import modules;
 import core.stdc.stdlib;
 
 // Bindings to mpv/client.h
+// general docs: https://mpv.io/manual/stable/#embedding-into-other-programs-libmpv
 struct  mpv_handle {}
 struct  mpv_event {}
 
 extern (C) mpv_handle *mpv_create();
 extern (C) int mpv_initialize(mpv_handle *ctx);
-extern (C) int mpv_set_option_string(mpv_handle *ctx, const char *name, const char *data);
+extern (C) int mpv_set_option_string(mpv_handle *ctx, const(char) *name, const(char) *data);
 // command list https://mpv.io/manual/stable/#list-of-input-commands
 extern (C) int mpv_command(mpv_handle *ctx, const(char)**  args);
 extern (C) mpv_event *mpv_wait_event(mpv_handle *ctx, double timeout);
 extern (C) const(char) *mpv_error_string(int error);
+// property list https://mpv.io/manual/stable/#properties
+extern (C) char *mpv_get_property_string(mpv_handle *ctx, const char *name);
 
 // Actual Code
 mpv_handle *getMpvHandle() {
@@ -64,10 +67,16 @@ class MpvModule : Module, MethodProvider {
         free(cmd);
     }
 
+    string getProperty(const(char)* name) {
+        char *value = mpv_get_property_string(this.mpv, name);
+        return to!string(value);
+    }
+
     Method[] getMethods() {
         return [
             new MpvPlayMethod(this), 
             new MpvStopMethod(this),
+            new MpvInfoMethod(this),
         ];
     }
 }
@@ -116,5 +125,44 @@ class MpvStopMethod : Method {
         }
 
         return MethodResult(200, Bson("yay"));
+    }
+}
+
+class MpvInfoMethod : Method {
+    private MpvModule mpv;
+
+    this(MpvModule mpv) {
+        this.mpv = mpv;
+    }
+    
+    override string getName() {
+        return "mpv_info";
+    };
+
+    override MethodResult run(Request req) {
+        
+        string path = this.mpv.getProperty("path");
+        string paused_str = this.mpv.getProperty("core-idle");
+        string artist = this.mpv.getProperty("metadata/by-key/artist");
+        string title = this.mpv.getProperty("metadata/by-key/title");
+        bool playing;
+
+        if (paused_str == "yes") {
+            playing = false;
+        } else {
+            playing = true;
+        }
+        
+        if (title == "") {
+            string icy_title = this.mpv.getProperty("metadata/by-key/icy-title");
+            string[] elements = icy_title.split(" - ");
+            artist = elements[0];
+            title = elements[1];
+        }
+
+        MediaInfo media_info = MediaInfo(artist, title);
+        PlaybackInfo playback_info = PlaybackInfo(path, playing, media_info);
+
+        return MethodResult(200, serializeToBson(playback_info));
     }
 }
