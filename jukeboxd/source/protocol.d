@@ -22,9 +22,9 @@ struct Response {
     Bson result;
 }
 
-interface Method {
-    string getName();
-    MethodResult run(Request);
+abstract class Method {
+    abstract string getName();
+    abstract MethodResult run(Request);
 }
 
 struct MethodResult {

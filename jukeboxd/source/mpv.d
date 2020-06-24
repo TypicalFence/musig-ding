@@ -77,11 +77,11 @@ class MpvPlayMethod : Method {
         this.mpv = mpv;
     }
 
-    string getName() {
+    override string getName() {
         return "mpv_play";
     };
 
-    MethodResult run(Request req) {
+    override MethodResult run(Request req) {
         string url = req.params.get!string();
 
         writeln(url);
@@ -99,12 +99,12 @@ class MpvStopMethod : Method {
     this(MpvModule mpv) {
         this.mpv = mpv;
     }
-
-    string getName() {
+    
+    override string getName() {
         return "mpv_stop";
     };
 
-    MethodResult run(Request req) {
+    override MethodResult run(Request req) {
         string url = req.params.get!string();
 
         writeln(url);

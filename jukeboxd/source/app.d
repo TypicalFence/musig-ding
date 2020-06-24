@@ -7,11 +7,11 @@ import handler;
 import mpv;
 
 class PingMethod : Method {
-    string getName() {
+    override string getName() {
         return "ping";
     };
 
-    MethodResult run(Request req) {
+    override MethodResult run(Request req) {
         return MethodResult(200, Bson("Pong"));
     }
 }
