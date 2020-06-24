@@ -25,7 +25,9 @@ router.post("/play", async (ctx) => {
     const socket = new net.Socket()
     const promiseSocket = new PromiseSocket(socket)
     await promiseSocket.connect("/tmp/jukeboxd")
-    await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_play", "params": request.body.url}))
+    await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_play", "params": request.body.url}));
+    const content = await promiseSocket.readAll();
+    console.log(BSON.deserialize(content));
     await promiseSocket.destroy();
     ctx.body = { "yay": "yay" };
 });
@@ -35,7 +37,10 @@ router.get("/stop", async (ctx) => {
     const socket = new net.Socket()
     const promiseSocket = new PromiseSocket(socket)
     await promiseSocket.connect("/tmp/jukeboxd")
-    await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_stop", "params": null}))
+    await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_stop"}))
+    await promiseSocket.readAll
+    const content = await promiseSocket.readAll();
+    console.log(BSON.deserialize(content));
     await promiseSocket.destroy();
     ctx.body = { "yay": "yay" };
 });

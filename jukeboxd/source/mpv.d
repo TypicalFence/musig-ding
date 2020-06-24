@@ -1,5 +1,6 @@
 import std.stdio;
 import std.string;
+import std.conv : to;
 import vibe.data.bson : Bson;
 import protocol;
 import modules;
@@ -17,6 +18,7 @@ extern (C) int mpv_set_option_string(mpv_handle *ctx, const char *name, const ch
 // command list https://mpv.io/manual/stable/#list-of-input-commands
 extern (C) int mpv_command(mpv_handle *ctx, const(char)**  args);
 extern (C) mpv_event *mpv_wait_event(mpv_handle *ctx, double timeout);
+extern (C) const(char) *mpv_error_string(int error);
 
 // Actual Code
 mpv_handle *getMpvHandle() {
@@ -39,12 +41,13 @@ class MpvModule : Module, MethodProvider {
         return "mpv";
     }
 
-    void stopPlayback() {
-        const(char)** cmd = cast(const(char)**) malloc(3);
+    int stopPlayback() {
+        const(char)** cmd = cast(const(char)**) malloc(2);
         cmd[0] = toStringz("stop");
         cmd[2] = null;
-        mpv_command(this.mpv, cmd);
+        int status = mpv_command(this.mpv, cmd);
         free(cmd);
+        return status;
     }
 
     void playUrl(const(char) *url) {
@@ -105,11 +108,12 @@ class MpvStopMethod : Method {
     };
 
     override MethodResult run(Request req) {
-        string url = req.params.get!string();
+        int status = this.mpv.stopPlayback();
 
-        writeln(url);
-
-        this.mpv.stopPlayback();
+        if (status != 0) {
+            auto error_msg = fromStringz(mpv_error_string(status));
+            return MethodResult(500, Bson(to!string(error_msg)));
+        }
 
         return MethodResult(200, Bson("yay"));
     }
