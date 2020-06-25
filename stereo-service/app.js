@@ -1,71 +1,42 @@
+import fs from "fs";
 import Koa from "koa";
 import KoaRouter from "@koa/router";
 import KoaBody from "koa-logger";
 import KoaLogger from "koa-body";
-import net from "net";
-import promise_socket from "promise-socket";
-import BSON from "bson";
+import JukeboxClient from "./lib/jukeboxd.js";
+import YAML from 'yaml'
 
-const { PromiseSocket } = promise_socket;
+const CONFIG_PATH = "/etc/musig.yml";
+const CONFIG = YAML.parse(fs.readFileSync(CONFIG_PATH, {encoding:'utf8', flag:'r'}));
 
-console.log(PromiseSocket);
 
 const app = new Koa();
 const router =  KoaRouter();
+const jukeboxd = new JukeboxClient(CONFIG["jukeboxd"]["socketPath"]);
+
 
 app.use(KoaLogger());
 app.use(KoaBody());
 
-router.get("/", (ctx) => {
-    ctx.body = "hewwo world";
-});
-
-router.post("/play", async (ctx) => {
+router.post("/player/play", async (ctx) => {
     const { request } = ctx;
-    const socket = new net.Socket()
-    const promiseSocket = new PromiseSocket(socket)
-    await promiseSocket.connect("/tmp/jukeboxd")
-    await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_play", "params": request.body.url}));
-    const content = await promiseSocket.readAll();
-    console.log(BSON.deserialize(content));
-    await promiseSocket.destroy();
-    ctx.body = { "yay": "yay" };
+    const juke_resp = await jukeboxd.request("mpv_play", request.body.url);
+    console.log(juke_resp);
+    ctx.body = juke_resp;
 });
 
-router.get("/stop", async (ctx) => {
-    const { request } = ctx;
-    const socket = new net.Socket()
-    const promiseSocket = new PromiseSocket(socket)
-    await promiseSocket.connect("/tmp/jukeboxd")
-    await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_stop"}))
-    const content = await promiseSocket.readAll();
-    console.log(BSON.deserialize(content));
-    await promiseSocket.destroy();
-    ctx.body = { "yay": "yay" };
+router.post("/player/stop", async (ctx) => {
+    const juke_resp = await jukeboxd.request("mpv_stop");
+    console.log(juke_resp);
+    ctx.body = juke_resp;
 });
 
-router.get("/info", async (ctx) => {
-    const { request } = ctx;
-    const socket = new net.Socket()
-    const promiseSocket = new PromiseSocket(socket)
-    await promiseSocket.connect("/tmp/jukeboxd")
-    await promiseSocket.write(BSON.serialize({id: "lol", type:"request", "method": "mpv_info"}))
-    const content = await promiseSocket.readAll();
-    const content_json = BSON.deserialize(content);
-    console.log(content_json);
-    await promiseSocket.destroy();
-    ctx.body = content_json.result;
-});
-
-router.get("/json", (ctx) => {
-    ctx.body = { "hewwo": "I am a json" };
-});
-
-router.post("/json", (ctx) => {
-    const { request } = ctx;
-
-    ctx.body = { "data": request.body };
+router.get("/player/status", async (ctx) => {
+    const juke_resp = await jukeboxd.request("mpv_info");
+    console.log(juke_resp);
+    ctx.body = juke_resp.result;
 });
 
 app.use(router.routes());
+
 app.listen(3000);

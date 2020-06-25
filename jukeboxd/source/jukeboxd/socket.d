@@ -1,4 +1,4 @@
-module socket;
+module jukeboxd.socket;
 
 import core.exception;
 import std.stdio;
@@ -6,8 +6,8 @@ import std.algorithm;
 import std.exception;
 import socket = std.socket;
 import vibe.data.bson : Bson, deserializeBson, serializeToBson, fromBsonData;
-import handler : RequestHandler;
-import protocol;
+import jukeboxd.handler : RequestHandler;
+import jukeboxd.protocol;
 
 class AlreadyRunningException : Exception {
     

@@ -1,5 +1,7 @@
+module jukeboxd.handler;
+
 import vibe.data.bson : Bson;
-import protocol;
+import jukeboxd.protocol;
 
 struct RequestHandler {
     private Method[string] methods;

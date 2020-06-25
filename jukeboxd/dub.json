@@ -4,10 +4,13 @@
 	],
 	"copyright": "Copyright © 2020, fence",
 	"dependencies": {
+		"dyaml": "~>0.8.1",
 		"vibe-d:data": "~>0.8.6"
 	},
 	"description": "A minimal D application.",
+	"libs": [
+		"mpv"
+	],
 	"license": "GPL3",
-	"name": "jukeboxd",
-    "libs": ["mpv"]
+	"name": "jukeboxd"
 }

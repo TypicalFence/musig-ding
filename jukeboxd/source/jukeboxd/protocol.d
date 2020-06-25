@@ -1,6 +1,7 @@
+module jukeboxd.protocol;
+
 import vibe.data.serialization : optional;
 import vibe.data.bson : Bson;
-import protocol;
 
 enum Type : string {
     REQUEST = "request",

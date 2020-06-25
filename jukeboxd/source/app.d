@@ -1,32 +1,32 @@
 import std.stdio;
 import std.socket : UnixAddress;
 import vibe.data.bson : Bson;
-import socket;
-import protocol;
-import handler;
-import mpv;
+import dyaml = dyaml;
+import jukeboxd.socket;
+import jukeboxd.protocol;
+import jukeboxd.handler;
+import jukeboxd.modules;
+import jukeboxd.modules.mpv;
+import jukeboxd.constants;
 
-class PingMethod : Method {
-    override string getName() {
-        return "ping";
-    };
 
-    override MethodResult run(Request req) {
-        return MethodResult(200, Bson("Pong"));
-    }
+dyaml.Node loadConfig() {
+    return dyaml.Loader.fromFile(CONFIGPATH).load();
 }
 
-class MyFeatureProvider : MethodProvider {
-    Method[] getMethods() {
-        return [new PingMethod()];
-    }
-}
+dyaml.Node config;
+RequestHandler handler;
+ModuleLoader moduleLoader;
+
 
 void main() {
-    UnixAddress addr = new UnixAddress("/tmp/jukeboxd");
-    RequestHandler handler = RequestHandler(); 
-    handler.registerProvider(new MyFeatureProvider());
-    handler.registerProvider(new MpvModule());
+    config = loadConfig();
+    UnixAddress addr = new UnixAddress(config["jukeboxd"]["socketPath"].as!string);
+    handler = RequestHandler();
+    moduleLoader = new ModuleLoader(config);
+
+    moduleLoader.loadModules(&handler);
+
     Socket socket = new Socket(addr, handler);
     socket.run();
 }

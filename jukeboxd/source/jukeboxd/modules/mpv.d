@@ -1,9 +1,12 @@
+module jukeboxd.modules.mpv;
+
+import core.exception;
 import std.stdio;
 import std.string;
 import std.conv : to;
 import vibe.data.bson : Bson, serializeToBson;
-import protocol;
-import modules;
+import jukeboxd.protocol;
+import jukeboxd.modules :  Module;
 
 //necessary for dynamic memory allocation
 import core.stdc.stdlib;
@@ -155,9 +158,14 @@ class MpvInfoMethod : Method {
         
         if (title == "") {
             string icy_title = this.mpv.getProperty("metadata/by-key/icy-title");
-            string[] elements = icy_title.split(" - ");
-            artist = elements[0];
-            title = elements[1];
+
+            try {
+                string[] elements = icy_title.split(" - ");
+                artist = elements[0];
+                title = elements[1];
+            } catch (RangeError) {
+                writeln(icy_title);
+            }
         }
 
         MediaInfo media_info = MediaInfo(artist, title);
