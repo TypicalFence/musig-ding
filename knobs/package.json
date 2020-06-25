@@ -1,0 +1,43 @@
+{
+  "name": "knobs",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "fence",
+  "license": "AGPL",
+  "private": true,
+  "scripts": {
+    "dev": "./dev.sh",
+    "dev-server": "webpack-dev-server --mode development",
+    "build": "webpack --mode development",
+    "build:prod": "webpack --mode production"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5",
+    "css-loader": "^2.1.0",
+    "error-overlay-webpack-plugin": "^0.1.6",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.8.0",
+    "node-sass": "^4.11.0",
+    "purgecss-webpack-plugin": "^1.5.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.1.14"
+  },
+  "dependencies": {
+    "connected-react-router": "^6.8.0",
+    "history": "^4.10.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-redux": "^7.2.0",
+    "react-router": "^5.1.2",
+    "react-router-dom": "^5.1.2",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0"
+  }
+}
