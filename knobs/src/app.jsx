@@ -1,11 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import { Route, Switch } from "react-router";
-import { ConnectedRouter } from "connected-react-router";
+import {
+    BrowserRouter as Router, Route, Switch
+} from "react-router-dom";
 import NotFound from "./components/NotFound";
 import Hello from "./components/HelloWorld";
-
 
 const GeneralNotFound = () => <NotFound />;
 
@@ -16,13 +15,11 @@ export const Routes = () => (
     </Switch>
 );
 
-export function renderApp(store, history) {
+export function renderApp() {
     ReactDOM.render(
-        <Provider store={store}>
-            <ConnectedRouter history={history}>
-                <Routes />
-            </ConnectedRouter>
-        </Provider>,
-        document.getElementById("react-root"),
+        <Router>
+            <Routes />
+        </Router>,
+        document.getElementById("react-root")
     );
 }
