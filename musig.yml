@@ -1,0 +1,15 @@
+playbackModules:
+  - mpv
+jukeboxd:
+  socketPath: "/tmp/jukeboxd"
+
+radio:
+  stations:
+    - name: lainon.life - cyberia
+      url: https://lainon.life/radio/cyberia.mp3.m3u
+      color: "#F0546A"
+      
+    - name: RaBe
+      url: http://stream.rabe.ch/livestream/rabe-mid.mp3
+      color: "#00E1D4"
+      

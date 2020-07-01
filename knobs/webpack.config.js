@@ -6,7 +6,6 @@ const ErrorOverlayPlugin = require("error-overlay-webpack-plugin");
 const ExtractCssPlugin = require("mini-css-extract-plugin");
 const PurgecssPlugin = require("purgecss-webpack-plugin");
 
-
 module.exports = (env, options) => {
     let mode = "production";
 
@@ -16,23 +15,23 @@ module.exports = (env, options) => {
 
     const devMode = options.mode !== "production";
     const PATHS = {
-        src: path.join(__dirname, "src"),
+        src: path.join(__dirname, "src")
     };
     const plugins = [
         new HtmlWebPackPlugin({
             template: "./src/index.html",
-            filename: "./index.html",
+            filename: "./index.html"
         }),
         new ErrorOverlayPlugin(),
-        new ExtractCssPlugin(),
+        new ExtractCssPlugin()
     ];
 
     if (!devMode) {
         plugins.push(
             new PurgecssPlugin({
                 paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true }),
-                whitelist: ["whitelisted"],
-            }),
+                whitelist: ["whitelisted"]
+            })
         );
     }
 
@@ -41,7 +40,7 @@ module.exports = (env, options) => {
         output: {
             path: path.resolve(__dirname, "dist"),
             filename: "bundle.js",
-            publicPath: "/dist",
+            publicPath: "/dist"
         },
         module: {
             rules: [
@@ -49,8 +48,8 @@ module.exports = (env, options) => {
                     test: /\.(js|jsx)$/,
                     exclude: /node_modules/,
                     use: {
-                        loader: "babel-loader",
-                    },
+                        loader: "babel-loader"
+                    }
                 },
                 {
                     test: /\.(sa|sc|c)ss$/,
@@ -59,35 +58,35 @@ module.exports = (env, options) => {
                             loader: ExtractCssPlugin.loader,
                             options: {
                                 sourceMap: true,
-                                url: false,
-                            },
+                                url: false
+                            }
                         },
                         "css-loader",
                         {
                             loader: "sass-loader",
                             options: {
                                 sourceMap: true,
-                                url: false,
-                            },
-                        },
-                    ],
-                },
-            ],
+                                url: false
+                            }
+                        }
+                    ]
+                }
+            ]
         },
         resolve: {
-            extensions: [".js", ".jsx"],
+            extensions: [".js", ".jsx"]
         },
         devServer: {
             contentBase: "./dist",
             open: false,
             historyApiFallback: {
-                index: "index.html",
+                index: "index.html"
             },
             proxy: {
-                "/api": "http://localhost:5000",
-            },
+                "/api": "http://localhost:3000"
+            }
         },
         plugins,
-        devtool: "cheap-module-source-map",
+        devtool: "cheap-module-source-map"
     };
 };

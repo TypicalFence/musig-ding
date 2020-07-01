@@ -18,23 +18,28 @@ const jukeboxd = new JukeboxClient(CONFIG["jukeboxd"]["socketPath"]);
 app.use(KoaLogger());
 app.use(KoaBody());
 
-router.post("/player/play", async (ctx) => {
+router.post("/api/player/play", async (ctx) => {
     const { request } = ctx;
     const juke_resp = await jukeboxd.request("mpv_play", request.body.url);
     console.log(juke_resp);
     ctx.body = juke_resp;
 });
 
-router.post("/player/stop", async (ctx) => {
+router.post("/api/player/stop", async (ctx) => {
     const juke_resp = await jukeboxd.request("mpv_stop");
     console.log(juke_resp);
     ctx.body = juke_resp;
 });
 
-router.get("/player/status", async (ctx) => {
+router.get("/api/player/status", async (ctx) => {
     const juke_resp = await jukeboxd.request("mpv_info");
     console.log(juke_resp);
     ctx.body = juke_resp.result;
+});
+
+router.get("/api/radio/stations", async (ctx) => {
+    ctx.body = CONFIG.radio.stations;
+
 });
 
 app.use(router.routes());
