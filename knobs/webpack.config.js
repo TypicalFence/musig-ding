@@ -13,18 +13,20 @@ module.exports = (env, options) => {
         mode = options.mode;
     }
 
-    const devMode = options.mode !== "production";
+    const devMode = mode !== "production";
     const PATHS = {
         src: path.join(__dirname, "src")
     };
     const plugins = [
         new HtmlWebPackPlugin({
-            template: "./src/index.html",
-            filename: "./index.html"
+            template: "./src/index.html"
         }),
-        new ErrorOverlayPlugin(),
         new ExtractCssPlugin()
     ];
+
+    if (devMode) {
+        plugins.push(new ErrorOverlayPlugin());
+    }
 
     if (!devMode) {
         plugins.push(
@@ -40,7 +42,6 @@ module.exports = (env, options) => {
         output: {
             path: path.resolve(__dirname, "dist"),
             filename: "bundle.js",
-            publicPath: "/dist"
         },
         module: {
             rules: [
