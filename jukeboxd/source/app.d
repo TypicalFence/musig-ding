@@ -1,4 +1,5 @@
 import std.stdio;
+import file = std.file;
 import std.socket : UnixAddress;
 import vibe.data.bson : Bson;
 import dyaml = dyaml;
@@ -21,7 +22,13 @@ ModuleLoader moduleLoader;
 
 void main() {
     config = loadConfig();
-    UnixAddress addr = new UnixAddress(config["jukeboxd"]["socketPath"].as!string);
+    string socketPath = config["jukeboxd"]["socketPath"].as!string;
+    
+    if (file.exists(socketPath)) {
+        file.remove(socketPath);
+    }
+
+    UnixAddress addr = new UnixAddress(socketPath);
     handler = RequestHandler();
     moduleLoader = new ModuleLoader(config);
 
