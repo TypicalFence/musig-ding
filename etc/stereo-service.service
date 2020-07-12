@@ -1,0 +1,18 @@
+[Unit]
+Description=Stereo Service
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/bin/npm start
+WorkingDirectory=/srv/musig-ding/stereo-service
+Environment="NODE_ENV=production"
+TimeoutSec=60
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=stereo-service
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

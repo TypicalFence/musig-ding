@@ -1,0 +1,17 @@
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        server_name _;
+        index index.html;
+
+
+    location / {
+        root /srv/www/knobs;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api {
+        proxy_pass http://localhost:3000;
+    }
+}
