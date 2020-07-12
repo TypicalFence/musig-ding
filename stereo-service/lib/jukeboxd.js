@@ -1,7 +1,7 @@
 import net from "net";
 import promise_socket from "promise-socket";
 import BSON from "bson";
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 const { PromiseSocket } = promise_socket;
 
@@ -39,7 +39,7 @@ export default class JukeboxClient {
         let request_id = id;
 
         if (request_id === null) {
-            request_id = uuid.v4();
+            request_id = uuidv4();
         }
 
         console.log(params);
