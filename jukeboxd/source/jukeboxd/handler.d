@@ -18,6 +18,10 @@ struct RequestHandler {
         auto feature = cast(FeatureModule) mod;
         auto provider = cast(MethodProvider) mod;
 
+       //if (cast(PlaybackModule) mod) {
+         //   this.playbackModules ~= cast (PlaybackModule) mod;
+ 
+
         if (playback !is null) {
             this.playbackModules ~= playback;
         }

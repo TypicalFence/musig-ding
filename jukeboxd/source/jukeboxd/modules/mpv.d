@@ -29,7 +29,7 @@ extern (C) char *mpv_get_property_string(mpv_handle *ctx, const char *name);
 // Actual Code
 mpv_handle *getMpvHandle() {
     mpv_handle *handle = mpv_create();
-    mpv_set_option_string(handle, "no-video", "true");
+    mpv_set_option_string(handle, "vid", "no");
     return handle;
 }
 
@@ -56,18 +56,20 @@ class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback {
         return status;
     }
 
-    void playUrl(const(char) *url) {
+    int playUrl(const(char) *url) {
         //dynamically allocate 3 bytes...
         const(char)** cmd = cast(const(char)**) malloc(3);
-
+        
         //do the magic
         cmd[0] = toStringz("loadfile");
         cmd[1] = url;
         cmd[2] = null;
-        mpv_command(this.mpv, cmd);
-
+        int status = mpv_command(this.mpv, cmd);
+        
         //...and delete/free them again
         free(cmd);
+
+        return status;
     }
 
     void playYoutubeUrl(string url) {
