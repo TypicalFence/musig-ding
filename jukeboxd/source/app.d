@@ -1,3 +1,4 @@
+import core.stdc.stdlib;
 import std.stdio;
 import file = std.file;
 import std.socket : UnixAddress;
@@ -17,10 +18,19 @@ dyaml.Node loadConfig() {
 
 dyaml.Node config;
 RequestHandler handler;
-ModuleLoader moduleLoader;
+PlaybackModuleLoader moduleLoader;
+FeatureModuleLoader featureLoader;
 
 
-void main() {
+int main() {
+    system("figlet jukeboxd");
+    writeln("=========================================");
+
+    if (!file.exists("/etc/musig.yml")) {
+        writefln("please create /etc/musig.yml");
+        return 1;
+    }
+
     config = loadConfig();
     string socketPath = config["jukeboxd"]["socketPath"].as!string;
     
@@ -30,11 +40,14 @@ void main() {
 
     UnixAddress addr = new UnixAddress(socketPath);
     handler = RequestHandler();
-    moduleLoader = new ModuleLoader(config);
+    moduleLoader = new PlaybackModuleLoader(config);
+    featureLoader = new FeatureModuleLoader(config);
 
     moduleLoader.loadModules(&handler);
+    featureLoader.loadModules(&handler);
 
     Socket socket = new Socket(addr, handler);
     socket.run();
+    return 0;
 }
 

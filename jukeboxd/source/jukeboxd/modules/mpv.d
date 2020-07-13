@@ -6,7 +6,7 @@ import std.string;
 import std.conv : to;
 import vibe.data.bson : Bson, serializeToBson;
 import jukeboxd.protocol;
-import jukeboxd.modules :  Module;
+import jukeboxd.modules;
 
 //necessary for dynamic memory allocation
 import core.stdc.stdlib;
@@ -34,7 +34,7 @@ mpv_handle *getMpvHandle() {
 }
 
 
-class MpvModule : Module, MethodProvider {
+class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback {
 
     mpv_handle *mpv;
 
@@ -70,6 +70,10 @@ class MpvModule : Module, MethodProvider {
         free(cmd);
     }
 
+    void playYoutubeUrl(string url) {
+        this.playUrl(toStringz(url));
+    }
+
     string getProperty(const(char)* name) {
         char *value = mpv_get_property_string(this.mpv, name);
         return to!string(value);
@@ -94,7 +98,7 @@ class MpvPlayMethod : Method {
 
     override string getName() {
         return "mpv_play";
-    };
+    }
 
     override MethodResult run(Request req) {
         string url = req.params.get!string();
