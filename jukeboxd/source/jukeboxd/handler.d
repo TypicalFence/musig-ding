@@ -2,6 +2,7 @@ module jukeboxd.handler;
 
 import std.stdio;
 import std.typecons : Nullable, nullable;
+import std.algorithm: canFind;
 import vibe.data.bson : Bson;
 import jukeboxd.protocol;
 import jukeboxd.modules;
@@ -11,7 +12,24 @@ struct RequestHandler {
     private FeatureModule[] featureModules;
     private Method[string] methods;
 
-    public void registerProvider(MethodProvider provider) {
+    public void loadModule(Module mod) {
+        writefln("loading module: " ~ mod.getName());
+        auto playback = cast(PlaybackModule) mod;
+        auto feature = cast(FeatureModule) mod;
+        auto provider = cast(MethodProvider) mod;
+
+        if (playback !is null) {
+            this.playbackModules ~= playback;
+        }
+
+        if (feature !is null) {
+            this.featureModules ~= feature;
+        }
+
+        this.registerProvider(provider);
+    }
+
+    private void registerProvider(MethodProvider provider) {
         foreach(method; provider.getMethods()) {
             writeln("loading method: " ~ method.getName());
             this.methods[method.getName()] = method;
@@ -30,14 +48,11 @@ struct RequestHandler {
 
     public Nullable!YoutubePlayback findYoutubeModule() {
         foreach (PlaybackModule playbackModule; this.playbackModules) {
-            if (is(typeof(playbackModule) == YoutubePlayback)) {
+            if (cast(YoutubePlayback) playbackModule !is null) {
                 Nullable!YoutubePlayback result = cast(YoutubePlayback) playbackModule;
-
-                writeln(":3");
                 return result;
             }
         }
-        writeln("oh no");
 
         return Nullable!YoutubePlayback.init;
     }

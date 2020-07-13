@@ -20,7 +20,7 @@ final class PlaybackModuleLoader {
     
         foreach(string moduleName; playbackModules) {
             if (moduleName == "mpv") {
-                handler.registerProvider(new MpvModule());
+                handler.loadModule(new MpvModule());
             }
         }
     }
@@ -40,14 +40,11 @@ final class FeatureModuleLoader {
             if  (featureName == "youtube") {
                 Nullable!YoutubePlayback playbackModule = handler.findYoutubeModule();
                 if (!playbackModule.isNull()) {
-                    writeln("owo");
-                    handler.registerProvider(new YoutubeModule(playbackModule.get()));
+                    handler.loadModule(new YoutubeModule(playbackModule.get()));
                 } else {
                     // TODO crash and burn
-                    writeln("uwu");
                 }
             }
-           string getName();
-}
+        }
     }
 }

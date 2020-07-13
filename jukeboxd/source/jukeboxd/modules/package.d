@@ -3,14 +3,15 @@ module jukeboxd.modules;
 import dyaml = dyaml;
 import jukeboxd.protocol : MethodProvider;
 
-interface PlaybackModule {
+interface Module {
     string getName();
+}
+
+interface PlaybackModule : Module {
     int stopPlayback();
 }
 
-interface FeatureModule : MethodProvider {
-    string getName();
-}
+interface FeatureModule : Module, MethodProvider {}
 
 interface YoutubePlayback {
     void playYoutubeUrl(string url);
