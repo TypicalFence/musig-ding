@@ -7,6 +7,7 @@ import jukeboxd.handler;
 import jukeboxd.modules; 
 import jukeboxd.modules.mpv; 
 import jukeboxd.modules.youtube; 
+import jukeboxd.modules.soundcloud; 
 
 final class PlaybackModuleLoader {
     dyaml.Node config;
@@ -41,6 +42,15 @@ final class FeatureModuleLoader {
                 Nullable!YoutubePlayback playbackModule = handler.findYoutubeModule();
                 if (!playbackModule.isNull()) {
                     handler.loadModule(new YoutubeModule(playbackModule.get()));
+                } else {
+                    // TODO crash and burn
+                }
+            }
+
+            if  (featureName == "soundcloud") {
+                Nullable!SoundcloudPlayback playbackModule = handler.findSoundcloudModule();
+                if (!playbackModule.isNull()) {
+                    handler.loadModule(new SoundcloudModule(playbackModule.get()));
                 } else {
                     // TODO crash and burn
                 }

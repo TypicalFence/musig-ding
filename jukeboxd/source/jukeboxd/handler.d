@@ -8,6 +8,7 @@ import jukeboxd.protocol;
 import jukeboxd.modules;
 
 struct RequestHandler {
+    // TODO maybe move the modules in a dedicated player/manager class
     private PlaybackModule[] playbackModules; 
     private FeatureModule[] featureModules;
     private Method[string] methods;
@@ -59,5 +60,16 @@ struct RequestHandler {
         }
 
         return Nullable!YoutubePlayback.init;
+    }
+
+    public Nullable!SoundcloudPlayback findSoundcloudModule() {
+        foreach (PlaybackModule playbackModule; this.playbackModules) {
+            if (cast(SoundcloudPlayback) playbackModule !is null) {
+                Nullable!SoundcloudPlayback result = cast(SoundcloudPlayback) playbackModule;
+                return result;
+            }
+        }
+
+        return Nullable!SoundcloudPlayback.init;
     }
 }

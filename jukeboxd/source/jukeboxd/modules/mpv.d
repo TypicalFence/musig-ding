@@ -34,7 +34,7 @@ mpv_handle *getMpvHandle() {
 }
 
 
-class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback {
+class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback, SoundcloudPlayback {
 
     mpv_handle *mpv;
 
@@ -73,6 +73,10 @@ class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback {
     }
 
     void playYoutubeUrl(string url) {
+        this.playUrl(toStringz(url));
+    }
+
+    void playSoundcloudUrl(string url) {
         this.playUrl(toStringz(url));
     }
 
