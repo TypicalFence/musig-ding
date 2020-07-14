@@ -34,7 +34,9 @@ mpv_handle *getMpvHandle() {
     return handle;
 }
 
-class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback, SoundcloudPlayback {
+class MpvModule : PlaybackModule, MethodProvider,
+                  YoutubePlayback, SoundcloudPlayback,
+                  LocalFilePlayback, RemoteFilePlayback {
 
     mpv_handle *mpv;
 
@@ -123,7 +125,13 @@ class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback, SoundcloudPla
         this.playUrl(toStringz(url));
     }
 
+    void playLocalFile(string path) {
+        this.playUrl(toStringz(path));
+    }
 
+    void playRemoteFileUrl(string url) {
+        this.playUrl(toStringz(url));
+    }
 
     Method[] getMethods() {
         return [

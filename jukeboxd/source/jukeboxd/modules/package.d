@@ -23,6 +23,14 @@ interface SoundcloudPlayback {
     void playSoundcloudUrl(string url);
 }
 
+interface LocalFilePlayback {
+    void playLocalFile(string path);
+}
+
+interface RemoteFilePlayback {
+    void playRemoteFileUrl(string url);
+}
+
 struct PlaybackInfo {
     string url;
     bool playing;
@@ -33,5 +41,3 @@ struct MediaInfo {
     string artist;
     string song;
 }
-
-public import jukeboxd.modules.loader;

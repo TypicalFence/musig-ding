@@ -56,6 +56,28 @@ final class Player : MethodProvider {
         return Nullable!SoundcloudPlayback.init;
     }
 
+    public Nullable!LocalFilePlayback findLocalFileModule() {
+        foreach (PlaybackModule playbackModule; this.playbackModules) {
+            if (cast(LocalFilePlayback) playbackModule !is null) {
+                Nullable!LocalFilePlayback result = cast(LocalFilePlayback) playbackModule;
+                return result;
+            }
+        }
+
+        return Nullable!LocalFilePlayback.init;
+    }
+
+    public Nullable!RemoteFilePlayback findRemoteFileModule() {
+        foreach (PlaybackModule playbackModule; this.playbackModules) {
+            if (cast(RemoteFilePlayback) playbackModule !is null) {
+                Nullable!RemoteFilePlayback result = cast(RemoteFilePlayback) playbackModule;
+                return result;
+            }
+        }
+
+        return Nullable!RemoteFilePlayback.init;
+    }
+
     Method[] getMethods() {
         return [
             new PlayerStatusMethod(this),

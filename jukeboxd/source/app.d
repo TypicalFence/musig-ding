@@ -11,16 +11,9 @@ import jukeboxd.modules;
 import jukeboxd.modules.mpv;
 import jukeboxd.constants;
 
-
 dyaml.Node loadConfig() {
     return dyaml.Loader.fromFile(CONFIGPATH).load();
 }
-
-dyaml.Node config;
-RequestHandler handler;
-PlaybackModuleLoader moduleLoader;
-FeatureModuleLoader featureLoader;
-
 
 int main() {
     system("figlet jukeboxd");
@@ -31,7 +24,7 @@ int main() {
         return 1;
     }
 
-    config = loadConfig();
+    dyaml.Node config = loadConfig();
     string socketPath = config["jukeboxd"]["socketPath"].as!string;
     
     if (file.exists(socketPath)) {
@@ -39,13 +32,8 @@ int main() {
     }
 
     UnixAddress addr = new UnixAddress(socketPath);
-    handler = new RequestHandler();
-    moduleLoader = new PlaybackModuleLoader(config);
-    featureLoader = new FeatureModuleLoader(config);
-
-    moduleLoader.loadModules(&handler);
-    featureLoader.loadModules(&handler);
-
+    
+    RequestHandler handler = new RequestHandler(config);
     Socket socket = new Socket(addr, handler);
     socket.run();
     return 0;

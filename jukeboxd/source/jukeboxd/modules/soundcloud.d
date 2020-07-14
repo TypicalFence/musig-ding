@@ -8,7 +8,7 @@ import vibe.data.bson : Bson, serializeToBson;
 import jukeboxd.modules;
 import jukeboxd.protocol;
 
-final class SoundcloudModule : FeatureModule, MethodProvider {
+final class SoundcloudModule : FeatureModule {
 
     SoundcloudPlayback playbackModule;
 
