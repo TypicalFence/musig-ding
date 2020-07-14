@@ -1,47 +1,30 @@
-import fs from "fs";
 import Koa from "koa";
-import KoaRouter from "@koa/router";
 import KoaBody from "koa-logger";
 import KoaLogger from "koa-body";
-import JukeboxClient from "./lib/jukeboxd.js";
-import YAML from 'yaml'
-
-const CONFIG_PATH = "/etc/musig.yml";
-const CONFIG = YAML.parse(fs.readFileSync(CONFIG_PATH, {encoding:'utf8', flag:'r'}));
-
+import generalRouter from "./routes/general.js";
+import playerRouter from "./routes/player.js";
+import playRouter from "./routes/play.js";
+import { notFound, internalError } from "./lib/responses.js";
 
 const app = new Koa();
-const router =  KoaRouter();
-const jukeboxd = new JukeboxClient(CONFIG["jukeboxd"]["socketPath"]);
-
 
 app.use(KoaLogger());
 app.use(KoaBody());
 
-router.post("/api/player/play", async (ctx) => {
-    const { request } = ctx;
-    const juke_resp = await jukeboxd.request("mpv_play", request.body.url);
-    console.log(juke_resp);
-    ctx.body = juke_resp;
+app.use(generalRouter.routes());
+app.use(playerRouter.routes());
+app.use(playRouter.routes());
+
+// error handlers
+app.use(async(ctx, next) => {
+    if (parseInt(ctx.status) === 404) {
+        notFound(ctx);
+    }
+
+    if (parseInt(ctx.status) === 500) {
+        internalError(ctx);
+    }
 });
 
-router.post("/api/player/stop", async (ctx) => {
-    const juke_resp = await jukeboxd.request("player_stop");
-    console.log(juke_resp);
-    ctx.body = juke_resp;
-});
-
-router.get("/api/player/status", async (ctx) => {
-    const juke_resp = await jukeboxd.request("player_info");
-    console.log(juke_resp);
-    ctx.body = juke_resp.result;
-});
-
-router.get("/api/radio/stations", async (ctx) => {
-    ctx.body = CONFIG.radio.stations;
-
-});
-
-app.use(router.routes());
-
+console.log("listening on port 3000");
 app.listen(3000);
