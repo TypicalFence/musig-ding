@@ -8,6 +8,8 @@ interface Module {
 }
 
 interface PlaybackModule : Module {
+    bool isPlaying();
+    PlaybackInfo getPlaybackInfo();
     int stopPlayback();
 }
 
@@ -19,6 +21,17 @@ interface YoutubePlayback {
 
 interface SoundcloudPlayback {
     void playSoundcloudUrl(string url);
+}
+
+struct PlaybackInfo {
+    string url;
+    bool playing;
+    MediaInfo media;
+}
+
+struct MediaInfo {
+    string artist;
+    string song;
 }
 
 public import jukeboxd.modules.loader;

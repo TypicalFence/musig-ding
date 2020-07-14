@@ -26,13 +26,13 @@ router.post("/api/player/play", async (ctx) => {
 });
 
 router.post("/api/player/stop", async (ctx) => {
-    const juke_resp = await jukeboxd.request("mpv_stop");
+    const juke_resp = await jukeboxd.request("player_stop");
     console.log(juke_resp);
     ctx.body = juke_resp;
 });
 
 router.get("/api/player/status", async (ctx) => {
-    const juke_resp = await jukeboxd.request("mpv_info");
+    const juke_resp = await jukeboxd.request("player_info");
     console.log(juke_resp);
     ctx.body = juke_resp.result;
 });

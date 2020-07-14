@@ -37,13 +37,3 @@ interface MethodProvider {
     Method[] getMethods(); 
 }
 
-struct PlaybackInfo {
-    string url;
-    bool playing;
-    MediaInfo media;
-}
-
-struct MediaInfo {
-    string artist;
-    string song;
-}

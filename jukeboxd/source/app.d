@@ -39,7 +39,7 @@ int main() {
     }
 
     UnixAddress addr = new UnixAddress(socketPath);
-    handler = RequestHandler();
+    handler = new RequestHandler();
     moduleLoader = new PlaybackModuleLoader(config);
     featureLoader = new FeatureModuleLoader(config);
 

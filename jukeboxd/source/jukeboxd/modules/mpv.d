@@ -7,6 +7,7 @@ import std.conv : to;
 import vibe.data.bson : Bson, serializeToBson;
 import jukeboxd.protocol;
 import jukeboxd.modules;
+import jukeboxd.player;
 
 //necessary for dynamic memory allocation
 import core.stdc.stdlib;
@@ -33,7 +34,6 @@ mpv_handle *getMpvHandle() {
     return handle;
 }
 
-
 class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback, SoundcloudPlayback {
 
     mpv_handle *mpv;
@@ -45,6 +45,49 @@ class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback, SoundcloudPla
 
     string getName() {
         return "mpv";
+    }
+    
+    string getProperty(const(char)* name) {
+        char *value = mpv_get_property_string(this.mpv, name);
+        return to!string(value);
+    }
+
+    bool isPlaying() {
+        string paused_str = this.getProperty("core-idle");
+        if (paused_str == "yes") {
+            return false;
+        } 
+        
+        return true;
+    }
+
+    PlaybackInfo getPlaybackInfo() {
+        string path = this.getProperty("path");
+        string paused_str = this.getProperty("core-idle");
+        string artist = this.getProperty("metadata/by-key/artist");
+        string title = this.getProperty("metadata/by-key/title");
+        bool playing;
+
+        if (paused_str == "yes") {
+            playing = false;
+        } else {
+            playing = true;
+        }
+        
+        if (title == "") {
+            string icy_title = this.getProperty("metadata/by-key/icy-title");
+
+            try {
+                string[] elements = icy_title.split(" - ");
+                artist = elements[0];
+                title = elements[1];
+            } catch (RangeError) {
+                writeln(icy_title);
+            }
+        }
+
+        MediaInfo media_info = MediaInfo(artist, title);
+        return PlaybackInfo(path, playing, media_info);
     }
 
     int stopPlayback() {
@@ -80,10 +123,7 @@ class MpvModule : PlaybackModule, MethodProvider, YoutubePlayback, SoundcloudPla
         this.playUrl(toStringz(url));
     }
 
-    string getProperty(const(char)* name) {
-        char *value = mpv_get_property_string(this.mpv, name);
-        return to!string(value);
-    }
+
 
     Method[] getMethods() {
         return [
@@ -150,7 +190,7 @@ class MpvInfoMethod : Method {
     
     override string getName() {
         return "mpv_info";
-    };
+    }
 
     override MethodResult run(Request req) {
         

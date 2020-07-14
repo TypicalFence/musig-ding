@@ -4,14 +4,18 @@ import std.stdio;
 import std.typecons : Nullable, nullable;
 import std.algorithm: canFind;
 import vibe.data.bson : Bson;
+import jukeboxd.player;
 import jukeboxd.protocol;
 import jukeboxd.modules;
 
-struct RequestHandler {
-    // TODO maybe move the modules in a dedicated player/manager class
-    private PlaybackModule[] playbackModules; 
-    private FeatureModule[] featureModules;
+final class RequestHandler {
+    private Player player;
     private Method[string] methods;
+
+    this() {
+        this.player = new Player();
+        this.registerProvider(this.player);
+    }
 
     public void loadModule(Module mod) {
         writefln("loading module: " ~ mod.getName());
@@ -24,11 +28,11 @@ struct RequestHandler {
  
 
         if (playback !is null) {
-            this.playbackModules ~= playback;
+            this.player.addPlaybackModule(playback);
         }
 
         if (feature !is null) {
-            this.featureModules ~= feature;
+            this.player.addFeatureModule(feature);
         }
 
         this.registerProvider(provider);
@@ -52,24 +56,11 @@ struct RequestHandler {
     }
 
     public Nullable!YoutubePlayback findYoutubeModule() {
-        foreach (PlaybackModule playbackModule; this.playbackModules) {
-            if (cast(YoutubePlayback) playbackModule !is null) {
-                Nullable!YoutubePlayback result = cast(YoutubePlayback) playbackModule;
-                return result;
-            }
-        }
-
-        return Nullable!YoutubePlayback.init;
+        return this.player.findYoutubeModule();
+        
     }
 
     public Nullable!SoundcloudPlayback findSoundcloudModule() {
-        foreach (PlaybackModule playbackModule; this.playbackModules) {
-            if (cast(SoundcloudPlayback) playbackModule !is null) {
-                Nullable!SoundcloudPlayback result = cast(SoundcloudPlayback) playbackModule;
-                return result;
-            }
-        }
-
-        return Nullable!SoundcloudPlayback.init;
+        return this.player.findSoundcloudModule();
     }
 }
