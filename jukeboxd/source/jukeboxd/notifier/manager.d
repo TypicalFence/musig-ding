@@ -1,5 +1,6 @@
 module jukeboxd.notifier.manager;
 
+import std.stdio;
 import std.uuid;
 import vibe.data.bson : Bson;
 import dyaml = dyaml;
@@ -19,6 +20,7 @@ class NotifierManager {
 
             if (notifier !is null) {
                 this.notifiers ~= notifier;
+                writeln("loading notifier: " ~ notifierName);
             }
         }
     }

@@ -21,13 +21,14 @@ class PlaybackChangeFiber : Fiber {
 
     void run() {
         // wait a bit because we might be playing a network stream;
-        Thread.sleep(dur!("seconds")(10));
+        Thread.sleep(dur!("msecs")(500));
         PlaybackModule mod = player.getPlayingModule();
 
         if (mod !is null) {
             notifier.notify(MessageKind.PLAYBACK, serializeToBson(mod.getPlaybackInfo()));
         } else {
-            if (retries > 10) {
+            if (retries < 20) {
+                this.retries++;
                 this.run();
             }
         }
