@@ -9,17 +9,18 @@ import jukeboxd.player;
 import jukeboxd.protocol;
 import jukeboxd.modules;
 import jukeboxd.modules.loader : PlaybackModuleLoader, FeatureModuleLoader;
+import jukeboxd.notifier;
 
 final class RequestHandler {
     private Player player;
     private Method[string] methods;
 
     this(dyaml.Node config) {
-        this.player = new Player();
+        this.player = new Player(new NotifierManager(config));
         this.registerProvider(this.player);
         PlaybackModuleLoader moduleLoader = new PlaybackModuleLoader(config);
         FeatureModuleLoader featureLoader = new FeatureModuleLoader(config);
-        moduleLoader.loadModules(this);
+        moduleLoader.loadModules(this, this.player);
         featureLoader.loadModules(this, this.player);
     }
 

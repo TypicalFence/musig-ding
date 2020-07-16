@@ -1,14 +1,27 @@
 module jukeboxd.player;
 
+import std.stdio;
 import std.typecons : Nullable, nullable;
 import vibe.data.serialization : optional;
 import vibe.data.bson : Bson, serializeToBson;
 import jukeboxd.protocol;
 import jukeboxd.modules;
+import jukeboxd.notifier;
+import jukeboxd.notifier.fiber;
 
-final class Player : MethodProvider {
+/// minimal interface for PlaybackModules
+interface PlaybackPlayerApi {
+    void onPlaybackChange(string moduleName);
+}
+
+final class Player : PlaybackPlayerApi, MethodProvider {
+    private NotifierManager notifier;
     private PlaybackModule[] playbackModules; 
     private FeatureModule[] featureModules;
+
+    this(NotifierManager notifier) {
+        this.notifier = notifier;
+    }
 
     void addPlaybackModule(PlaybackModule playback) {
         this.playbackModules ~= playback;
@@ -22,6 +35,22 @@ final class Player : MethodProvider {
         foreach(PlaybackModule mod; this.playbackModules) {
             mod.stopPlayback();
         }
+    }
+
+    void stopAllOtherPlayback(string moduleName) {
+        foreach(PlaybackModule mod; this.playbackModules) {
+            if (mod.getName() != moduleName) {
+                mod.stopPlayback();
+            }
+        }
+    }
+
+    void onPlaybackChange(string moduleName) {
+        this.stopAllOtherPlayback(moduleName);
+        writeln(moduleName);
+        // will probably explode
+        auto fiber = new PlaybackChangeFiber(this, this.notifier);
+        fiber.call();
     }
 
     PlaybackModule getPlayingModule() {

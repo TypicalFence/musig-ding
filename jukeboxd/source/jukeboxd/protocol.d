@@ -6,6 +6,7 @@ import vibe.data.bson : Bson;
 enum Type : string {
     REQUEST = "request",
     RESPONSE = "response",
+    MESSAGE = "message",
 }
 
 struct Request {
@@ -21,6 +22,17 @@ struct Response {
     Type type;
     int code;
     Bson result;
+}
+
+enum MessageKind : string {
+    PLAYBACK = "playback",
+}
+
+struct Message {
+    string id;
+    Type type;
+    MessageKind kind;
+    Bson content;
 }
 
 abstract class Method {

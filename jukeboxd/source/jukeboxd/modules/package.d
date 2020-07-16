@@ -2,15 +2,26 @@ module jukeboxd.modules;
 
 import dyaml = dyaml;
 import jukeboxd.protocol : MethodProvider;
+import jukeboxd.player : PlaybackPlayerApi;
 
 interface Module {
     string getName();
 }
 
-interface PlaybackModule : Module {
-    bool isPlaying();
-    PlaybackInfo getPlaybackInfo();
-    int stopPlayback();
+abstract class PlaybackModule : Module {
+    protected PlaybackPlayerApi player;
+
+    this(PlaybackPlayerApi player) {
+        this.player = player;
+    }
+
+    protected void emitPlaybackChangeEvent() {
+        this.player.onPlaybackChange(this.getName());
+    }
+
+    abstract bool isPlaying();
+    abstract PlaybackInfo getPlaybackInfo();
+    abstract int stopPlayback();
 }
 
 interface FeatureModule : Module, MethodProvider {}

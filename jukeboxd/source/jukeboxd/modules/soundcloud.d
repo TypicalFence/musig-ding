@@ -45,7 +45,7 @@ class SoundcloudPlayMethod : Method {
     override MethodResult run(Request req) {
         string url = req.params.get!string();
 
-        writeln(url);
+        //writeln(url);
 
         this.soundcloud.playUrl(url);
 

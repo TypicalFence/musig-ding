@@ -45,7 +45,7 @@ class LocalPlayFileMethod : Method {
     override MethodResult run(Request req) {
         string path = req.params.get!string();
 
-        writeln(path);
+        //writeln(path);
 
         this.localFileModule.playLocalFile(path);
 
@@ -90,7 +90,7 @@ class RemoteFilePlayMethod : Method {
     override MethodResult run(Request req) {
         string url = req.params.get!string();
 
-        writeln(url);
+        //writeln(url);
 
         this.remoteFileModule.playRemoteFile(url);
 

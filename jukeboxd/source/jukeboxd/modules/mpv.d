@@ -40,7 +40,8 @@ class MpvModule : PlaybackModule, MethodProvider,
 
     mpv_handle *mpv;
 
-    this() {
+    this(PlaybackPlayerApi player) {
+        super(player);
         this.mpv = getMpvHandle();
         mpv_initialize(mpv);
     }
@@ -54,7 +55,7 @@ class MpvModule : PlaybackModule, MethodProvider,
         return to!string(value);
     }
 
-    bool isPlaying() {
+    override bool isPlaying() {
         string paused_str = this.getProperty("core-idle");
         if (paused_str == "yes") {
             return false;
@@ -63,7 +64,7 @@ class MpvModule : PlaybackModule, MethodProvider,
         return true;
     }
 
-    PlaybackInfo getPlaybackInfo() {
+    override PlaybackInfo getPlaybackInfo() {
         string path = this.getProperty("path");
         string paused_str = this.getProperty("core-idle");
         string artist = this.getProperty("metadata/by-key/artist");
@@ -92,7 +93,7 @@ class MpvModule : PlaybackModule, MethodProvider,
         return PlaybackInfo(path, playing, media_info);
     }
 
-    int stopPlayback() {
+    override int stopPlayback() {
         const(char)** cmd = cast(const(char)**) malloc(2);
         cmd[0] = toStringz("stop");
         cmd[2] = null;
@@ -114,6 +115,8 @@ class MpvModule : PlaybackModule, MethodProvider,
         //...and delete/free them again
         free(cmd);
 
+        // TODO error handling
+        this.emitPlaybackChangeEvent();
         return status;
     }
 

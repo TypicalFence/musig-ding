@@ -19,12 +19,12 @@ final class PlaybackModuleLoader {
         this.config = config;
     }
 
-    void loadModules(RequestHandler handler) {
+    void loadModules(RequestHandler handler, Player player) {
         auto playbackModules = this.config["playbackModules"];
     
         foreach(string moduleName; playbackModules) {
             if (moduleName == "mpv") {
-                handler.loadModule(new MpvModule());
+                handler.loadModule(new MpvModule(player));
             }
         }
     }
