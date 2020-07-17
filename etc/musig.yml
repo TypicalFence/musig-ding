@@ -1,15 +1,33 @@
 playbackModules:
   - mpv
+
+features:
+  - youtube
+  - soundcloud 
+  - localfiles
+  - remotefiles
+  - radio
+
+notifiers:
+  - stdout
+  - socks
+
 jukeboxd:
   socketPath: "/tmp/jukeboxd"
+
+socks:
+  socketPath: "/tmp/socks.sock"
+  port: 8080
 
 radio:
   stations:
     - name: lainon.life - cyberia
+      id: cyberia
       url: https://lainon.life/radio/cyberia.mp3.m3u
       color: "#F0546A"
       
     - name: RaBe
+      id: rabe
       url: http://stream.rabe.ch/livestream/rabe-mid.mp3
       color: "#00E1D4"
-      
+ 
