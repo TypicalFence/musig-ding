@@ -2,21 +2,15 @@ package main
 
 import (
 	"container/list"
-	"flag"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"github.com/mbndr/figlet4go"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"net"
 	"net/http"
 	"os"
-)
-
-const _SockAddr = "/tmp/socks.sock"
-
-var (
-	addr    = flag.String("addr", "127.0.0.1:8080", "http service address")
-	cmdPath string
+	"strconv"
 )
 
 var upgrader = websocket.Upgrader{
@@ -28,9 +22,9 @@ var queue = list.New()
 func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 	// evil cross origin hack lol
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
-	conn, sock_err := upgrader.Upgrade(w, r, nil)
+	conn, sockErr := upgrader.Upgrade(w, r, nil)
 
-	if sock_err != nil {
+	if sockErr != nil {
 		println("could not open socket, or something, who knows")
 		return
 	}
@@ -63,31 +57,42 @@ func handleSystemsocket(c net.Conn) {
 		data := buf[0:nr]
 		var bsonObject bson.M
 		bson.Unmarshal(data, &bsonObject)
+		println("recieved: " + bsonObject["kind"].(string))
 		queue.PushBack(bsonObject)
 	}
 }
 
 func main() {
-	flag.Parse()
+	ascii := figlet4go.NewAsciiRender()
+	renderStr, _ := ascii.Render("Socks")
+	fmt.Print(renderStr)
+	println("====================================")
+
+	config := loadConfig()
+	sockAddr := config.Socks.SocketPath
+	port := config.Socks.Port
+	addr := ":" + strconv.Itoa(port)
 
 	// create and open websocket
 	http.HandleFunc("/ws", handleWebsocket)
 
 	go func() {
-		log.Fatal(http.ListenAndServe(*addr, nil))
+		println("broadcasting on " + addr)
+		log.Fatal(http.ListenAndServe(addr, nil))
 	}()
 
 	// create and open unixsocket
-	if err := os.RemoveAll(_SockAddr); err != nil {
+	if err := os.RemoveAll(sockAddr); err != nil {
 		log.Fatal(err)
 	}
 
-	l, err := net.Listen("unix", _SockAddr)
+	l, err := net.Listen("unix", sockAddr)
 	if err != nil {
 		log.Fatal("listen error:", err)
 	}
 	defer l.Close()
 
+	println("listening on " + sockAddr)
 	for {
 		conn, err := l.Accept()
 		if err != nil {

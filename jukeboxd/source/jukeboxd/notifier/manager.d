@@ -13,7 +13,7 @@ class NotifierManager {
 
     this(dyaml.Node config) {
         auto notifiers = config["notifiers"];
-        auto factory = new NotifierFactory(); 
+        auto factory = new NotifierFactory(config); 
 
         foreach(string notifierName; notifiers) {
             Notifier notifier = factory.build(notifierName);
