@@ -92,3 +92,5 @@ config.private.js
 dist/
 pkg/
 .tern-port
+
+.vscode/

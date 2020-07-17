@@ -7,10 +7,10 @@ export const RadioMenu = ({ radios, clickHandler }) => {
     return <div className="radio-menu">
         {radios.map(r =>
             <RadioTile
-                key={r.name}
+                key={r.id}
                 name={r.name}
                 color={r.color}
-                url={r.url}
+                id={r.id}
                 clickHandler={clickHandler}
             />
         )}
@@ -38,15 +38,15 @@ export class RadioMenuContainer extends React.Component {
         });
     }
 
-    playUrl(url) {
-        this.props.player.playUrl(url);
+    tuneRadio(radio) {
+        this.props.player.tuneRadio(radio);
     }
 
     render() {
         const { radios } = this.state;
 
         if (radios !== null && typeof radios !== "undefined") {
-            return <RadioMenu radios={radios} clickHandler={this.playUrl.bind(this)} />;
+            return <RadioMenu radios={radios} clickHandler={this.tuneRadio.bind(this)} />;
         } else {
             return <p>loading</p>;
         }

@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import RadioTile from "../RadioTile";
 import { fetchPlayerStatus } from "../../stereo/player.js";
 
 export const PlaybackDisplay = ({ playing }) => {
@@ -23,9 +22,11 @@ export class PlaybackDisplayContainer extends React.Component {
     updateDisplay() {
         fetchPlayerStatus().then((status) => {
             console.log(status);
-            if (status.playing) {
+            if (status.playbackinfo.playing) {
+                const info = status.playbackinfo;
+
                 const state = { ...this.state };
-                state.playing = status.url;
+                state.playing = info.media.artist + " - " + info.media.song + " (" + info.url + ")";
                 this.setState(state);
             }
         });
